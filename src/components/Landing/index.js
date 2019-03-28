@@ -1,9 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { SignUpLink } from '../SignUp';
-
-import * as ROUTES from '../../constants/routes';
 
 const LandingPage = () => (
     <div>
