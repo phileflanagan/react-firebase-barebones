@@ -15,6 +15,7 @@ class Firebase {
     constructor() {
         app.initializeApp(config);
 
+        this.emailAuthProvider = app.auth.EmailAuthProvider;
         this.auth = app.auth();
         this.db = app.database();
     }
@@ -25,6 +26,9 @@ class Firebase {
     doSignOut = () => this.auth.signOut();
     doPasswordReset = (email) => this.auth.sendPasswordResetEmail(email);
     doPasswordUpdate = (password) => this.auth.currentUser.updatePassword(password);
+    doSendEmailVerification = () => this.auth.currentUser.sendEmailVerification({
+        url: process.env.REACT_APP_CONFIRMATION_EMAIL_REDIRECT
+    });
 
     // *** Merge Auth and DB User API ***
     onAuthUserListener = (next, fallback) => {
@@ -38,6 +42,8 @@ class Firebase {
                         authUser = {
                             uid: authUser.uid,
                             email: authUser.email,
+                            emailVerified: authUser.emailVerified,
+                            providerData: authUser.providerData,
                             ...dbUser
                         };
 
