@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 
+import { AuthUserContext } from '../Session';
+import * as ROLES from '../../constants/roles';
+
 /* Props 
     key={message.uid}
     message={message} 
@@ -41,31 +44,39 @@ class MessageItem extends Component {
         const { message, onRemoveMessage } = this.props;
         const { editMode, editText } = this.state;
         return (
-            <li>
-                {editMode ? (
-                    <input
-                        type="text"
-                        value={editText}
-                        onChange={this.onChangeEditText}
-                    />
-                ) : (
-                    <span>
-                        <strong>{message.user.username || message.user.userId}</strong> {message.text}
-                        {message.modified && <small> (edited)</small>}
-                    </span>
+            <AuthUserContext.Consumer>
+                {authUser => (
+                    <li>
+                        {editMode ? (
+                            <input
+                                type="text"
+                                value={editText}
+                                onChange={this.onChangeEditText}
+                            />
+                        ) : (
+                            <span>
+                                <strong>{message.user.username || message.user.userId}</strong> {message.text}
+                                {message.modified && <small> (edited)</small>}
+                            </span>
+                        )}
+                        {(authUser.uid === message.userId || authUser.roles.includes(ROLES.ADMIN)) && (
+                            <span>
+                                {editMode ? (
+                                    <span>
+                                        <button onClick={this.onSaveEditText}>Save</button>
+                                        <button onClick={this.onToggleEditMode}>Reset</button>
+                                    </span>
+                                ) : (
+                                    <button onClick={this.onToggleEditMode}>Edit</button>
+                                )}
+                                {!editMode && (
+                                    <button type="button" onClick={() => onRemoveMessage(message.uid)}>Delete</button>
+                                )}
+                            </span>
+                        )}
+                    </li>
                 )}
-                {editMode ? (
-                    <span>
-                        <button onClick={this.onSaveEditText}>Save</button>
-                        <button onClick={this.onToggleEditMode}>Reset</button>
-                    </span>
-                ) : (
-                    <button onClick={this.onToggleEditMode}>Edit</button>
-                )}
-                {!editMode && (
-                    <button type="button" onClick={() => onRemoveMessage(message.uid)}>Delete</button>
-                )}
-            </li>
+            </AuthUserContext.Consumer>
         );
     }
 }
